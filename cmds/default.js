@@ -8,9 +8,14 @@ const fs = require('fs')
 
 const isDirectory = source => fs.lstatSync(source).isDirectory()
 
-const flattenDir = (dir, nested) => {
+const flattenDir = (dir, nested, normalize) => {
   const isDirectoryy = name => isDirectory(`${dir}/${name}`)
   const dirs = fs.readdirSync(dir).filter(isDirectoryy)
+  if (dirs.length > 0 && !nested && !normalize) {
+    throw new Error(
+      `Found nested dirs inside "${dir}"\n\n\tpass --normalize or -n to ignore and normalize these sub directories\n`
+    )
+  }
   dirs.forEach(dirr => {
     flattenDir(`${dir}/${dirr}`, true)
   })
@@ -29,7 +34,7 @@ const flattenDir = (dir, nested) => {
 
 // callback to check the file name to see if it matches any that already exist
 const compareFileNames = file => fileName => {
-  return fileName.includes(file.slice(file.indexOf('>> ')))
+  return fileName.includes(file.slice(file.indexOf('>>') + 2).trim())
 }
 
 const listDirectory = sourceDir => {
@@ -45,6 +50,8 @@ module.exports = args => {
 
   // flags..
   let hi = args.hi
+  const clean = args.clean || args.c
+  const normalize = args.normalize || args.n
 
   const dir = path.resolve('./')
   const readDir = fs.readdirSync(dir)
@@ -64,7 +71,7 @@ module.exports = args => {
   //
   const processDirFiles = sourceDir => {
     // clean up directory
-    flattenDir(`${dir}/${sourceDir}`)
+    flattenDir(`${dir}/${sourceDir}`, null, normalize)
 
     // get file names and filter out hidden files
     const files = fs.readdirSync(sourceDir).filter(name => {
@@ -79,14 +86,12 @@ module.exports = args => {
       } else if (/^\d\s/.test(file)) {
         newName = file.substr(-(file.length - 2))
       }
-      // rename the file <dirName> >> <originalFilename>
-      newName = `~${sourceDir} >> ${newName}`
 
       // rename the file
       fs.renameSync(`${sourceDir}/${file}`, `${sourceDir}/${newName}`)
     })
   }
-  console.log(`cleaning and renaming files in..\n${sourceDirs}\n...`)
+  console.log(`cleaning files in..\n${sourceDirs}\n...`)
   sourceDirs.forEach(processDirFiles)
   console.log(`next..\n`)
 
@@ -111,13 +116,18 @@ module.exports = args => {
     files.forEach(file => {
       // check the file name to see if it matches any that already exist
       const fileExistsInTarget = targetDirFiles.find(compareFileNames(file))
+      let newName = file
+      // rename the file <dirName> >> <originalFilename>
+      newName = `~${sourceDir} >> ${newName}`
       if (!fileExistsInTarget) {
+        console.log(`touch ${targetDirName}/${newName}`)
         fs.copyFileSync(
           `${dir}/${sourceDir}/${file}`,
-          `${dir}/${targetDirName}/${file}`
+          `${dir}/${targetDirName}/${newName}`
         )
       }
 
+      if (!clean) return
       // delete the file source file (try catch for system files)
       try {
         fs.unlinkSync(`${dir}/${sourceDir}/${file}`)
@@ -126,7 +136,7 @@ module.exports = args => {
       }
     })
   }
-  console.log(`copy files in..\n${sourceDirs}\nif they're are any..\n...`)
+  console.log(`copying files in: ${sourceDirs}..\n...`)
   sourceDirs.forEach(writeNewFiles)
   console.log(`next..\n`)
 
@@ -151,7 +161,13 @@ module.exports = args => {
           .readdirSync(`${dir}/~hi`)
           .find(compareFileNames(file))
         if (!fileExistsInhi) {
-          fs.copyFileSync(`${dir}/${targetDir}/${file}`, `${dir}/~hi/${file}`)
+          let newName = file
+          newName = `${targetDir} >> ${newName}`
+          console.log(`copying (to /~hi): ${newName}`)
+          fs.copyFileSync(
+            `${dir}/${targetDir}/${file}`,
+            `${dir}/~hi/${newName}`
+          )
         }
       })
     })
