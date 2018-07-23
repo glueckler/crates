@@ -82,9 +82,13 @@ module.exports = args => {
       let newName = file
       // if the filename starts with a single or double digit number followed by a space.. delete the number
       if (/^\d\d\s/.test(file)) {
-        newName = file.substr(-(file.length - 3))
+        newName = file.substr(-(file.length - 3)) // test for ex 01
       } else if (/^\d\s/.test(file)) {
-        newName = file.substr(-(file.length - 2))
+        newName = file.substr(-(file.length - 2)) // test for ex 1
+      } else if (/^\d\d.\s/.test(file)) {
+        newName = file.substr(-(file.length - 4)) // test for ex 01.
+      } else if (/^\d.\s/.test(file)) {
+        newName = file.substr(-(file.length - 3)) // test for ex 1.
       }
 
       // rename the file
@@ -120,7 +124,7 @@ module.exports = args => {
       // rename the file <dirName> >> <originalFilename>
       newName = `~${sourceDir} >> ${newName}`
       if (!fileExistsInTarget) {
-        console.log(`touch ${targetDirName}/${newName}`)
+        console.log(`touch: ${newName}`)
         fs.copyFileSync(
           `${dir}/${sourceDir}/${file}`,
           `${dir}/${targetDirName}/${newName}`

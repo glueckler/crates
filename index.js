@@ -11,6 +11,9 @@ module.exports = () => {
   if (args.d || args.destruct) {
     cmd = 'destruct'
   }
+  if (args.f || args.format) {
+    cmd = 'formatMIK'
+  }
   switch (cmd) {
     case 'help': {
       console.log(`\n--hi -> will create a folder with all structured songs`)
@@ -26,12 +29,18 @@ module.exports = () => {
         `  optional --hi flag will also destructure ~hi folder if it exists`
       )
       console.log(
-        `  note! that any songs you wish to destructure must be inside a '~' directory (or they will go unnoticed)`
+        `  note! that any songs you wish to destructure must be inside a '~' directory (or they will go unnoticed)\n`
+      )
+      console.log(
+        `--format or -f -> will format the Mixed in Key part of the filename\n`
       )
       break
     }
     case 'destruct':
       require('./cmds/destruct')(args)
+      break
+    case 'formatMIK':
+      require('./cmds/formatMIK')(args)
       break
     default:
       require('./cmds/default')(args)
