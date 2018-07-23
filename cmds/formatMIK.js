@@ -18,26 +18,31 @@ String.prototype.splice = function(idx, rem, str) {
 module.exports = args => {
   console.log(`cleaning up Mixed in Key..\n`)
 
-  const dir = path.resolve('./')
-  const readDir = fs.readdirSync(dir)
-  const files = readDir.filter(isNotDirectory)
-
   console.log(`replacing all instances of multiple keys ex. 'or 5A' \n...\n`)
-  files.forEach(file => {
-    // replace the 'or 5A' when there are multiple keys
-    let fileName = file
-    if (/^\d{2}\s/.test(fileName)) {
-      fileName = `0${fileName}`
-    }
-    if (/^\d{3}\s-\s\d{1}[AB]/.test(fileName)) {
-      fileName = fileName.splice(6,0,'0')
-    }
-    const noOrKey = fileName.replace(/\sor\s\d\d?[AB]/, '')
-    if (noOrKey !== file) {
-      console.log(`replacing ${file}\nwith      ${noOrKey}\n`)
-      fs.renameSync(`${dir}/${file}`, `${dir}/${noOrKey}`)
-    }
-  })
+
+  const formatMIK = dirr => {
+    // recursively dive into directories
+    const readDir = fs.readdirSync(dirr)
+    readDir.forEach(file => {
+      if (isDirectory(`${dirr}/${file}`)) formatMIK(`${dirr}/${file}`)
+      // replace the 'or 5A' when there are multiple keys
+      let fileName = file
+      if (/^\d{2}\s/.test(fileName)) {
+        fileName = `0${fileName}`
+      }
+      if (/^\d{3}\s-\s\d{1}[AB]/.test(fileName)) {
+        fileName = fileName.splice(6, 0, '0')
+      }
+      const noOrKey = fileName.replace(/\sor\s\d\d?[AB]/, '')
+      if (noOrKey !== file) {
+        console.log(`replacing ${file}\nwith      ${noOrKey}\n`)
+        fs.renameSync(`${dirr}/${file}`, `${dirr}/${noOrKey}`)
+      }
+    })
+  }
+
+  const dir = path.resolve('./')
+  formatMIK(dir)
 
   console.log(`done :)\n`)
 }
