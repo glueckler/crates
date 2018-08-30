@@ -14,6 +14,9 @@ module.exports = () => {
   if (args.f || args.format) {
     cmd = 'formatMIK'
   }
+  if (args.ableton) {
+    cmd = 'formatAbleton'
+  }
   switch (cmd) {
     case 'help': {
       console.log(`\n--hi -> will create a folder with all structured songs`)
@@ -31,6 +34,7 @@ module.exports = () => {
       console.log(
         `  note! that any songs you wish to destructure must be inside a '~' directory (or they will go unnoticed)\n`
       )
+      // TODO:dean but how will it be formatted?
       console.log(
         `--format or -f -> will format the Mixed in Key part of the filename\n`
       )
@@ -41,6 +45,9 @@ module.exports = () => {
       break
     case 'formatMIK':
       require('./cmds/formatMIK')(args)
+      break
+    case 'formatAbleton':
+      require('./cmds/formatAbleton')(args)
       break
     default:
       require('./cmds/default')(args)
