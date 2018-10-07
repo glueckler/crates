@@ -43,7 +43,7 @@ module.exports = args => {
         fileName = (() => {
           const mixStr = fileNameTest[0]
           let origin = fileName.slice(mixStr.length)
-          origin = origin.replace(/^\d{1,2}\s/, '')
+          origin = origin.replace(/^\d{1,2}\.?\s/, '')
           return `${mixStr}${origin}`
         })()
 
