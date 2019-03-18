@@ -19,14 +19,13 @@ module.exports = () => {
   }
   switch (cmd) {
     case 'help': {
-      console.log(`\n--hi -> will create a folder with all structured songs`)
+      console.log(`\n--hi -> will create a folder with all structured songs\n`)
       console.log(
-        `--clean or -c -> will delete files in source directories after copying`
+        `--clean or -c -> will delete files in source directories after copying\n`
       )
       console.log(
         `--normalize or -n -> will allow normalizing of directories which have nested directories`
       )
-
       console.log(`\n-d -> will destructure crates`)
       console.log(
         `  optional --hi flag will also destructure ~hi folder if it exists`
@@ -34,9 +33,11 @@ module.exports = () => {
       console.log(
         `  note! that any songs you wish to destructure must be inside a '~' directory (or they will go unnoticed)\n`
       )
-      // TODO:dean but how will it be formatted?
       console.log(
-        `--format or -f -> will format the Mixed in Key part of the filename\n`
+        `--format or -f -> will format the Mixed in Key part of the filename\n\tie. 068-04A-SONG NAME\n`
+      )
+      console.log(
+        `--ableton -> will format the Mixed in Key part of the filename for ableton\n\tie. 68-4A-SONG NAME`
       )
       break
     }
